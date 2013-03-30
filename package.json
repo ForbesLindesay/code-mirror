@@ -1,0 +1,19 @@
+{
+  "name": "code-mirror",
+  "version": "3.11.01",
+  "description": "CodeMirror fork to be more \"browserifyable\"",
+  "main": "./codemirror",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ForbesLindesay/code-mirror.git"
+  },
+  "author": "Marijn Haverbeke",
+  "license": "MIT",
+  "devDependencies": {
+    "gethub": "~1.0.1",
+    "mkdirp": "~0.3.5",
+    "rimraf": "~2.1.4",
+    "lexical-scope": "0.0.6",
+    "falafel": "~0.2.0"
+  }
+}
