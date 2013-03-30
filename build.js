@@ -205,7 +205,7 @@ function fixup() {
     if (path === join(__dirname, 'codemirror.js')) {
       update(src.replace(/window\.CodeMirror/g, 'module.exports'));
     } else {
-      update('var CodeMirror = module.exports = require("codemirror");\n' + 
+      update('var CodeMirror = module.exports = require("code-mirror");\n' + 
         src.replace(/window\.CodeMirror/g, 'CodeMirror'));
     }
   })
