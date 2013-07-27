@@ -7,7 +7,7 @@
     "type": "git",
     "url": "https://github.com/ForbesLindesay/code-mirror.git"
   },
-  "author": "Marijn Haverbeke",
+  "author": "ForbesLindesay",
   "license": "MIT",
   "devDependencies": {
     "gethub": "~1.0.1",
