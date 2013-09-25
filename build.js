@@ -7,6 +7,15 @@ var mkdirp = require('mkdirp').sync;
 var rimraf = require('rimraf').sync;
 var falafel = require('falafel');
 
+rimraf(__dirname + '/addon');
+rimraf(__dirname + '/keymap');
+rimraf(__dirname + '/mode');
+rimraf(__dirname + '/src');
+rimraf(__dirname + '/theme');
+rimraf(__dirname + '/codemirror.css');
+rimraf(__dirname + '/codemirror.js');
+
+
 function read(dest) {
   return (fs.readFileSync(join(__dirname, dest)).toString());
 }
@@ -17,44 +26,47 @@ function move(src, dest) {
 function readdir(src) {
   return fs.readdirSync(join(__dirname, 'src', src));
 }
+
 gethub('marijnh', 'CodeMirror', 'master', join(__dirname, 'src'), function (err) {
+  rimraf(__dirname + '/src/doc');
+  rimraf(__dirname + '/src/index.html');
+  rimraf(__dirname + '/src/package.json');
+  rimraf(__dirname + '/src/mode/index.html');
+  rimraf(__dirname + '/src/mode/meta.js');
+
   move('lib/codemirror.js', 'codemirror.js');
   move('lib/codemirror.css', 'codemirror.css');
-  readdir('theme')
-    .forEach(function (theme) {
-      move('theme/' + theme, 'theme/' + theme);
-    });
-  readdir('mode')
-    .forEach(function (mode) {
-      if (mode === 'index.html') return;
-      if (mode === 'meta.js') return;
-      if (mode === 'rpm') return;
-      move('mode/' + mode + '/' + mode + '.js', 'mode/' + mode + '.js');
-      try {
-        move('mode/' + mode + '/' + mode + '.css', 'mode/' + mode + '.css');
-      } catch (ex) {
-        //most don't actually have css
-      }
-    });
+
+  readdir('theme').forEach(function (theme) {
+    move('theme/' + theme, 'theme/' + theme);
+  });
+
+  readdir('mode').forEach(function (mode) {
+    if (mode === 'rpm') return;
+    move('mode/' + mode + '/' + mode + '.js', 'mode/' + mode + '.js');
+    try {
+      move('mode/' + mode + '/' + mode + '.css', 'mode/' + mode + '.css');
+    } catch (ex) {
+      //most don't actually have css
+    }
+  });
   move('mode/rpm/spec/spec.js', 'mode/rpm/spec.js');
   move('mode/rpm/spec/spec.css', 'mode/rpm/spec.css');
   move('mode/rpm/changes/changes.js', 'mode/rpm/changes.js');
 
-  readdir('keymap')
-    .forEach(function (keymap) {
-      move('keymap/' + keymap, 'keymap/' + keymap);
-    });
+  readdir('keymap').forEach(function (keymap) {
+    move('keymap/' + keymap, 'keymap/' + keymap);
+  });
 
   move('addon/dialog/dialog.js', 'addon/dialog.js');
   move('addon/dialog/dialog.css', 'addon/dialog.css');
-  readdir('addon')
-    .forEach(function (addon) {
-      if (addon === 'dialog') return;
-      readdir('addon/' + addon)
-        .forEach(function (file) {
-          move('addon/' + addon + '/' + file, 'addon/' + addon + '/' + file);
-        });
+  readdir('addon').forEach(function (addon) {
+    if (addon === 'dialog') return;
+    readdir('addon/' + addon).forEach(function (file) {
+      move('addon/' + addon + '/' + file, 'addon/' + addon + '/' + file);
     });
+  });
+
   empty();
   fixup();
 
@@ -143,6 +155,8 @@ gethub('marijnh', 'CodeMirror', 'master', join(__dirname, 'src'), function (err)
     src = deps.map(function (name) { return 'require(' + JSON.stringify(name) + ');'; }).join('') + src;
     update(src);
   });
+
+  var diff = read('./addon/merge/dep/diff_match_patch.js')
 
   console.dir(modes);
 });
