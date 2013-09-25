@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 // Open simple dialogs on top of an editor. Relies on dialog.css.
 
 (function() {

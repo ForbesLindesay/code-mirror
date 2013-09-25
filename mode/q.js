@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 CodeMirror.defineMode("q",function(config){
   var indentUnit=config.indentUnit,
       curPunc,
@@ -18,7 +18,7 @@ CodeMirror.defineMode("q",function(config){
           return state.tokenize=tokenBase,"builtin";
       }
     if(/\s/.test(c))
-      return stream.peek()=="/"?(stream.skipToEnd(),"comment"):"whitespace"; 
+      return stream.peek()=="/"?(stream.skipToEnd(),"comment"):"whitespace";
     if(c=='"')
       return(state.tokenize=tokenString)(stream,state);
     if(c=='`')

@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 /**
  * Link to the project's GitHub page:
  * https://github.com/duralog/CodeMirror

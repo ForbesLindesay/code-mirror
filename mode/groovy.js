@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 CodeMirror.defineMode("groovy", function(config) {
   function words(str) {
     var obj = {}, words = str.split(" ");
@@ -204,7 +204,8 @@ CodeMirror.defineMode("groovy", function(config) {
       else return ctx.indented + (closing ? 0 : config.indentUnit);
     },
 
-    electricChars: "{}"
+    electricChars: "{}",
+    fold: "brace"
   };
 });
 

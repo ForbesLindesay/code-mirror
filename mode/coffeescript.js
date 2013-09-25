@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 /**
  * Link to the project's GitHub page:
  * https://github.com/pickhardt/coffeescript-codemirror-mode
@@ -159,7 +159,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
         if (stream.match(identifiers)) {
             return 'variable';
         }
-        
+
         if (stream.match(properties)) {
             return 'property';
         }
@@ -260,7 +260,7 @@ CodeMirror.defineMode('coffeescript', function(conf) {
         if (current === '.') {
             style = state.tokenize(stream, state);
             current = stream.current();
-            if (style === 'variable') {
+            if (/^\.[\w$]+$/.test(current)) {
                 return 'variable';
             } else {
                 return ERRORCLASS;
@@ -338,8 +338,10 @@ CodeMirror.defineMode('coffeescript', function(conf) {
             }
 
             return state.scopes[0].offset;
-        }
+        },
 
+        lineComment: "#",
+        fold: "indent"
     };
     return external;
 });

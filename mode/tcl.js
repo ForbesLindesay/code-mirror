@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 //tcl mode by Ford_Lawnmower :: Based on Velocity mode by Steve O'Hara
 CodeMirror.defineMode("tcl", function() {
   function parseWords(str) {
@@ -57,7 +57,7 @@ CodeMirror.defineMode("tcl", function() {
       else if (ch == "$") {
         stream.eatWhile(/[$_a-z0-9A-Z\.{:]/);
         stream.eatWhile(/}/);
-        state.beforeParams = true;              
+        state.beforeParams = true;
         return "builtin";
       }
       else if (isOperatorChar.test(ch)) {

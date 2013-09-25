@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 // Quick and dirty spec file highlighting
 
 CodeMirror.defineMode("spec", function() {

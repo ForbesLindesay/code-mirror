@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 CodeMirror.defineMode("http", function() {
   function failFirstLine(stream, state) {
     stream.skipToEnd();

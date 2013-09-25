@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 (function() {
   var modes = ["clike", "css", "javascript"];
   for (var i = 0; i < modes.length; ++i)

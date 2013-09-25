@@ -1,4 +1,4 @@
-require("./htmlmixed.js");require("./xml.js");var CodeMirror = module.exports = require("codemirror");
+require("./htmlmixed.js");require("./xml.js");var CodeMirror = module.exports = require("code-mirror");
 (function() {
   function keywords(str) {
     var obj = {}, words = str.split(" ");
@@ -119,6 +119,9 @@ require("./htmlmixed.js");require("./xml.js");var CodeMirror = module.exports = 
       },
 
       electricChars: "/{}:",
+      blockCommentStart: "/*",
+      blockCommentEnd: "*/",
+      lineComment: "//",
 
       innerMode: function(state) { return {state: state.curState, mode: state.curMode}; }
     };

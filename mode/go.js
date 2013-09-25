@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 CodeMirror.defineMode("go", function(config) {
   var indentUnit = config.indentUnit;
 
@@ -159,7 +159,10 @@ CodeMirror.defineMode("go", function(config) {
       else return ctx.indented + (closing ? 0 : indentUnit);
     },
 
-    electricChars: "{}:"
+    electricChars: "{}:",
+    blockCommentStart: "/*",
+    blockCommentEnd: "*/",
+    lineComment: "//"
   };
 });
 

@@ -1,6 +1,8 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 CodeMirror.runMode = function(string, modespec, callback, options) {
   var mode = CodeMirror.getMode(CodeMirror.defaults, modespec);
+  var ie = /MSIE \d/.test(navigator.userAgent);
+  var ie_lt9 = ie && (document.documentMode == null || document.documentMode < 9);
 
   if (callback.nodeType == 1) {
     var tabSize = (options && options.tabSize) || CodeMirror.defaults.tabSize;
@@ -8,7 +10,9 @@ CodeMirror.runMode = function(string, modespec, callback, options) {
     node.innerHTML = "";
     callback = function(text, style) {
       if (text == "\n") {
-        node.appendChild(document.createElement("br"));
+        // Emitting LF or CRLF on IE8 or earlier results in an incorrect display.
+        // Emitting a carriage return makes everything ok.
+        node.appendChild(document.createTextNode(ie_lt9 ? '\r' : text));
         col = 0;
         return;
       }
@@ -46,7 +50,7 @@ CodeMirror.runMode = function(string, modespec, callback, options) {
     var stream = new CodeMirror.StringStream(lines[i]);
     while (!stream.eol()) {
       var style = mode.token(stream, state);
-      callback(stream.current(), style, i, stream.start);
+      callback(stream.current(), style, i, stream.start, state);
       stream.start = stream.pos;
     }
   }

@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 /*
  * See LICENSE in this directory for the license under which this code
  * is released.
@@ -32,7 +32,7 @@ CodeMirror.defineMode("sieve", function(config) {
       state.tokenize = tokenString(ch);
       return state.tokenize(stream, state);
     }
-    
+
     if (ch == "(") {
       state._indent.push("(");
       // add virtual angel wings so that editor behaves...
@@ -45,24 +45,24 @@ CodeMirror.defineMode("sieve", function(config) {
       state._indent.push("{");
       return null;
     }
-    
+
     if (ch == ")")  {
       state._indent.pop();
-      state._indent.pop();    
+      state._indent.pop();
     }
 
     if (ch === "}") {
       state._indent.pop();
       return null;
     }
-    
+
     if (ch == ",")
       return null;
-      
+
     if (ch == ";")
       return null;
-      
-    
+
+
     if (/[{}\(\),;]/.test(ch))
       return null;
 
@@ -98,7 +98,7 @@ CodeMirror.defineMode("sieve", function(config) {
 
     if (atoms.propertyIsEnumerable(cur))
       return "atom";
-      
+
     return null;
   }
 
@@ -170,10 +170,10 @@ CodeMirror.defineMode("sieve", function(config) {
       var length = state._indent.length;
       if (_textAfter && (_textAfter[0] == "}"))
         length--;
-      
+
       if (length <0)
         length = 0;
-      
+
       return length * indentUnit;
     },
 

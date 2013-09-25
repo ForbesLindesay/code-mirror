@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 /*
  * Author: Constantin Jucovschi (c.jucovschi@jacobs-university.de)
  * Licence: MIT
@@ -96,7 +96,7 @@ CodeMirror.defineMode("stex", function() {
         }
 
         // white space control characters
-        if (source.match(/^\\[,;!\/]/)) {
+        if (source.match(/^\\[,;!\/\\]/)) {
           return "tag";
         }
 

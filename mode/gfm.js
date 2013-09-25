@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 CodeMirror.defineMode("gfm", function(config) {
   var codeDepth = 0;
   function blankLine(state) {

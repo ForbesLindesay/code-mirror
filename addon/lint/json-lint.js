@@ -1,7 +1,9 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 // Depends on jsonlint.js from https://github.com/zaach/jsonlint
 
-CodeMirror.jsonValidator = function(text) {
+// declare global: jsonlint
+
+CodeMirror.registerHelper("lint", "json", function(text) {
   var found = [];
   jsonlint.parseError = function(str, hash) {
     var loc = hash.loc;
@@ -12,4 +14,5 @@ CodeMirror.jsonValidator = function(text) {
   try { jsonlint.parse(text); }
   catch(e) {}
   return found;
-};
+});
+CodeMirror.jsonValidator = CodeMirror.lint.json; // deprecated

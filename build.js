@@ -26,6 +26,7 @@ gethub('marijnh', 'CodeMirror', 'master', join(__dirname, 'src'), function (err)
     });
   readdir('mode')
     .forEach(function (mode) {
+      if (mode === 'index.html') return;
       if (mode === 'meta.js') return;
       if (mode === 'rpm') return;
       move('mode/' + mode + '/' + mode + '.js', 'mode/' + mode + '.js');

@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 CodeMirror.defineMode('ocaml', function() {
 
   var words = {
@@ -107,8 +107,11 @@ CodeMirror.defineMode('ocaml', function() {
     token: function(stream, state) {
       if (stream.eatSpace()) return null;
       return state.tokenize(stream, state);
-    }
+    },
+
+    blockCommentStart: "(*",
+    blockCommentEnd: "*)"
   };
 });
-  
+
 CodeMirror.defineMIME('text/x-ocaml', 'ocaml');

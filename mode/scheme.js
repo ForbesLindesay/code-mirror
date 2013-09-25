@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 /**
  * Author: Koh Zi Han, based on implementation by Koh Zi Chun
  */
@@ -224,7 +224,9 @@ CodeMirror.defineMode("scheme", function () {
         indent: function (state) {
             if (state.indentStack == null) return state.indentation;
             return state.indentStack.indent;
-        }
+        },
+
+        lineComment: ";;"
     };
 });
 

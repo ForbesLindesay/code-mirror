@@ -21,7 +21,7 @@ All other scripts can just be require'd in and will all use `requrie('code-mirro
 ## Loading Modes
 
 ```javascript
-require('mode/htmlmixed');
+require('code-mirror/mode/htmlmixed');
 ```
 
 For the vast majority of cases, that will also automatically require any dependencies (such as `javascript`, `css` and `xml` in this case).

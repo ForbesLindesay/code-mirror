@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 (function() {
   CodeMirror.defineOption("placeholder", "", function(cm, val, old) {
     var prev = old && old != CodeMirror.Init;
@@ -20,14 +20,14 @@ var CodeMirror = module.exports = require("codemirror");
   });
 
   function clearPlaceholder(cm) {
-    if (cm._placeholder) {
-      cm._placeholder.parentNode.removeChild(cm._placeholder);
-      cm._placeholder = null;
+    if (cm.state.placeholder) {
+      cm.state.placeholder.parentNode.removeChild(cm.state.placeholder);
+      cm.state.placeholder = null;
     }
   }
   function setPlaceholder(cm) {
     clearPlaceholder(cm);
-    var elt = cm._placeholder = document.createElement("pre");
+    var elt = cm.state.placeholder = document.createElement("pre");
     elt.style.cssText = "height: 0; overflow: visible";
     elt.className = "CodeMirror-placeholder";
     elt.appendChild(document.createTextNode(cm.getOption("placeholder")));

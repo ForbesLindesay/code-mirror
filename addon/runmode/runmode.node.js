@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 /* Just enough of CodeMirror to run runMode under node.js */
 
 function splitLines(string){ return string.split(/\r?\n|\r/); };
@@ -42,12 +42,14 @@ StringStream.prototype = {
   match: function(pattern, consume, caseInsensitive) {
     if (typeof pattern == "string") {
       var cased = function(str) {return caseInsensitive ? str.toLowerCase() : str;};
-      if (cased(this.string).indexOf(cased(pattern), this.pos) == this.pos) {
+      var substr = this.string.substr(this.pos, pattern.length);
+      if (cased(substr) == cased(pattern)) {
         if (consume !== false) this.pos += pattern.length;
         return true;
       }
     } else {
       var match = this.string.slice(this.pos).match(pattern);
+      if (match && match.index > 0) return null;
       if (match && consume !== false) this.pos += match[0].length;
       return match;
     }
@@ -61,8 +63,20 @@ exports.startState = function(mode, a1, a2) {
 };
 
 var modes = exports.modes = {}, mimeModes = exports.mimeModes = {};
-exports.defineMode = function(name, mode) { modes[name] = mode; };
+exports.defineMode = function(name, mode) {
+  if (arguments.length > 2) {
+    mode.dependencies = [];
+    for (var i = 2; i < arguments.length; ++i) mode.dependencies.push(arguments[i]);
+  }
+  modes[name] = mode;
+};
 exports.defineMIME = function(mime, spec) { mimeModes[mime] = spec; };
+
+exports.defineMode("null", function() {
+  return {token: function(stream) {stream.skipToEnd();}};
+});
+exports.defineMIME("text/plain", "null");
+
 exports.getMode = function(options, spec) {
   if (typeof spec == "string" && mimeModes.hasOwnProperty(spec))
     spec = mimeModes[spec];
@@ -83,7 +97,7 @@ exports.runMode = function(string, modespec, callback) {
     var stream = new exports.StringStream(lines[i]);
     while (!stream.eol()) {
       var style = mode.token(stream, state);
-      callback(stream.current(), style, i, stream.start);
+      callback(stream.current(), style, i, stream.start, state);
       stream.start = stream.pos;
     }
   }

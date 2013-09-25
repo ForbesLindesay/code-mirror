@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 CodeMirror.defineMode("commonlisp", function (config) {
   var assumeBody = /^with|^def|^do|^prog|case$|^cond$|bind$|when$|unless$/;
   var numLiteral = /^(?:[+\-]?(?:\d+|\d*\.\d+)(?:[efd][+\-]?\d+)?|[+\-]?\d+(?:\/[+\-]?\d+)?|#b[+\-]?[01]+|#o[+\-]?[0-7]+|#x[+\-]?[\da-f]+)/;
@@ -95,7 +95,11 @@ CodeMirror.defineMode("commonlisp", function (config) {
     indent: function (state, _textAfter) {
       var i = state.ctx.indentTo;
       return typeof i == "number" ? i : state.ctx.start + 1;
-    }
+    },
+
+    lineComment: ";;",
+    blockCommentStart: "#|",
+    blockCommentEnd: "|#"
   };
 });
 

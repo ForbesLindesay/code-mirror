@@ -1,4 +1,4 @@
-var CodeMirror = module.exports = require("codemirror");
+var CodeMirror = module.exports = require("code-mirror");
 /*
  * =====================================================================================
  *
@@ -9,7 +9,7 @@ var CodeMirror = module.exports = require("codemirror");
  *        Created:  05/17/2012 09:20:25 PM
  *       Revision:  none
  *
- *         Author:  Stas Kobzar (stas@modulis.ca), 
+ *         Author:  Stas Kobzar (stas@modulis.ca),
  *        Company:  Modulis.ca Inc.
  *
  * =====================================================================================
@@ -100,9 +100,9 @@ CodeMirror.defineMode("asterisk", function() {
       state.extenStart = true;
       switch(cur) {
         case 'same': state.extenSame = true; break;
-        case 'include': 
-        case 'switch': 
-        case 'ignorepat': 
+        case 'include':
+        case 'switch':
+        case 'ignorepat':
           state.extenInclude = true;break;
         default:break;
       }
@@ -122,7 +122,7 @@ CodeMirror.defineMode("asterisk", function() {
       };
     },
     token: function(stream, state) {
-      
+
       var cur = '';
       var ch  = '';
       if(stream.eatSpace()) return null;
@@ -175,7 +175,7 @@ CodeMirror.defineMode("asterisk", function() {
       } else{
         return basicToken(stream,state);
       }
-      
+
       return null;
     }
   };
