@@ -10,14 +10,15 @@
   "author": "ForbesLindesay",
   "license": "MIT",
   "devDependencies": {
-    "gethub": "~1.0.1",
     "mkdirp": "~0.3.5",
     "rimraf": "~2.1.4",
     "lexical-scope": "0.0.6",
     "falafel": "~0.2.0",
     "uglify-js": "~2.4.0",
     "testit": "~1.1.0",
-    "astw": "0.0.0"
+    "astw": "0.0.0",
+    "npm-fetch": "0.0.6",
+    "tar-pack": "~2.0.0"
   },
   "dependencies": {
     "diff-match-patch": "~1.0.0",

@@ -6,7 +6,8 @@ var dirname = require('path').dirname;
 var fs = require('fs');
 
 var step = require('testit');
-var gethub = require('gethub');
+var npm = require('npm-fetch');
+var unpack = require('tar-pack').unpack;
 var mkdirp = require('mkdirp').sync;
 var rimraf = require('rimraf').sync;
 var astwalker = require('astw');
@@ -23,8 +24,8 @@ step('cleanup', function () {
   rimraf(__dirname + '/LICENSE');
 });
 
-step('download', function () {
-  return gethub('marijnh', 'CodeMirror', 'master', join(__dirname, 'src'));
+step('download', function (callback) {
+  npm('codemirror', '*').pipe(unpack(__dirname + '/src', callback));
 });
 
 step('remove unused files', function () {
