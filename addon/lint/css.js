@@ -1,4 +1,6 @@
+var CSSLint = require("csslint")
 var CodeMirror = module.exports = require("code-mirror");
+require("./lint.js");
 // Depends on csslint.js from https://github.com/stubbornella/csslint
 
 // declare global: CSSLint

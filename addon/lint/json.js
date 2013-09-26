@@ -1,4 +1,6 @@
+var jsonlint = require("jsonlint")
 var CodeMirror = module.exports = require("code-mirror");
+require("./lint.js");
 // Depends on jsonlint.js from https://github.com/zaach/jsonlint
 
 // declare global: jsonlint

@@ -1,4 +1,6 @@
+var JSHINT = require("jshint").JSHINT
 var CodeMirror = module.exports = require("code-mirror");
+require("./lint.js");
 (function() {
   "use strict";
   // declare global: JSHINT

@@ -1,4 +1,7 @@
-require("./python.js");require("./stex.js");var CodeMirror = module.exports = require("code-mirror");
+require("./python.js");
+require("./stex.js");
+require("./rst.js");
+var CodeMirror = module.exports = require("code-mirror");
 CodeMirror.defineMode('rst-base', function (config) {
 
     ///////////////////////////////////////////////////////////////////////////

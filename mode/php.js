@@ -1,4 +1,5 @@
-require("./htmlmixed.js");require("./xml.js");var CodeMirror = module.exports = require("code-mirror");
+require("./htmlmixed.js");
+var CodeMirror = module.exports = require("code-mirror");
 (function() {
   function keywords(str) {
     var obj = {}, words = str.split(" ");

@@ -1,4 +1,8 @@
 var CodeMirror = module.exports = require("code-mirror");
+var diff_match_patch = require("diff-match-patch");
+var DIFF_INSERT = diff_match_patch.DIFF_INSERT;
+var DIFF_DELETE = diff_match_patch.DIFF_DELETE;
+var DIFF_EQUAL = diff_match_patch.DIFF_EQUAL;
 (function() {
   "use strict";
   // declare global: diff_match_patch, DIFF_INSERT, DIFF_DELETE, DIFF_EQUAL

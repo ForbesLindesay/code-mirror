@@ -1,4 +1,5 @@
-require("./xml.js");var CodeMirror = module.exports = require("code-mirror");
+require("./xml.js");
+var CodeMirror = module.exports = require("code-mirror");
 CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   var htmlFound = CodeMirror.modes.hasOwnProperty("xml");

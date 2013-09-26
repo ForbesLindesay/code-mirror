@@ -1,4 +1,6 @@
-require("./htmlmixed.js");require("./smarty.js");var CodeMirror = module.exports = require("code-mirror");
+require("./htmlmixed.js");
+require("./smarty.js");
+var CodeMirror = module.exports = require("code-mirror");
 /**
 * @file smartymixed.js
 * @brief Smarty Mixed Codemirror mode (Smarty + Mixed HTML)

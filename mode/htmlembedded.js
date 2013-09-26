@@ -1,4 +1,5 @@
-require("./htmlmixed.js");var CodeMirror = module.exports = require("code-mirror");
+require("./htmlmixed.js");
+var CodeMirror = module.exports = require("code-mirror");
 CodeMirror.defineMode("htmlembedded", function(config, parserConfig) {
 
   //config settings

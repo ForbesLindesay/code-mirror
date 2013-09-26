@@ -1,3 +1,4 @@
+require("./gfm.js");
 var CodeMirror = module.exports = require("code-mirror");
 CodeMirror.defineMode("gfm", function(config) {
   var codeDepth = 0;

@@ -1,4 +1,6 @@
+var coffeelint = require("coffeelint")
 var CodeMirror = module.exports = require("code-mirror");
+require("./lint.js");
 // Depends on coffeelint.js from http://www.coffeelint.org/js/coffeelint.js
 
 // declare global: coffeelint

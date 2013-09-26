@@ -1,4 +1,6 @@
-require("./htmlmixed.js");require("./ruby.js");var CodeMirror = module.exports = require("code-mirror");
+require("./htmlmixed.js");
+require("./ruby.js");
+var CodeMirror = module.exports = require("code-mirror");
 (function() {
   "use strict";
 

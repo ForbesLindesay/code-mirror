@@ -1,178 +1,332 @@
-var gethub = require('gethub');
+'use strict';
+
 var relative = require('path').relative;
 var join = require('path').join;
 var dirname = require('path').dirname;
 var fs = require('fs');
+
+var step = require('testit');
+var gethub = require('gethub');
 var mkdirp = require('mkdirp').sync;
 var rimraf = require('rimraf').sync;
-var falafel = require('falafel');
+var astwalker = require('astw');
+var uglify = require('uglify-js');
 
-rimraf(__dirname + '/addon');
-rimraf(__dirname + '/keymap');
-rimraf(__dirname + '/mode');
-rimraf(__dirname + '/src');
-rimraf(__dirname + '/theme');
-rimraf(__dirname + '/codemirror.css');
-rimraf(__dirname + '/codemirror.js');
+step('cleanup', function () {
+  rimraf(__dirname + '/addon');
+  rimraf(__dirname + '/keymap');
+  rimraf(__dirname + '/mode');
+  rimraf(__dirname + '/src');
+  rimraf(__dirname + '/theme');
+  rimraf(__dirname + '/codemirror.css');
+  rimraf(__dirname + '/codemirror.js');
+  rimraf(__dirname + '/LICENSE');
+});
 
+step('download', function () {
+  return gethub('marijnh', 'CodeMirror', 'master', join(__dirname, 'src'));
+});
 
-function read(dest) {
-  return (fs.readFileSync(join(__dirname, dest)).toString());
-}
-function move(src, dest) {
-  mkdirp(dirname(join(__dirname, dest)));
-  fs.renameSync(join(__dirname, 'src', src), join(__dirname, dest));
-}
-function readdir(src) {
-  return fs.readdirSync(join(__dirname, 'src', src));
-}
-
-gethub('marijnh', 'CodeMirror', 'master', join(__dirname, 'src'), function (err) {
+step('remove unused files', function () {
   rimraf(__dirname + '/src/doc');
   rimraf(__dirname + '/src/index.html');
   rimraf(__dirname + '/src/package.json');
+  rimraf(__dirname + '/src/.gitattributes');
+  rimraf(__dirname + '/src/.gitignore');
+  rimraf(__dirname + '/src/.travis.yml');
+  rimraf(__dirname + '/src/AUTHORS');
+  rimraf(__dirname + '/src/CONTRIBUTING.md');
+  rimraf(__dirname + '/src/README.md');
+  rimraf(__dirname + '/src/bower.json');
   rimraf(__dirname + '/src/mode/index.html');
   rimraf(__dirname + '/src/mode/meta.js');
+  rimraf(__dirname + '/src/addon/mode/multiplex_test.js');
+  rimraf(__dirname + '/src/addon/tern');
+  rimraf(__dirname + '/src/addon/merge/dep');
+});
 
-  move('lib/codemirror.js', 'codemirror.js');
-  move('lib/codemirror.css', 'codemirror.css');
 
-  readdir('theme').forEach(function (theme) {
-    move('theme/' + theme, 'theme/' + theme);
-  });
+step('move main files', function () {
+  move('./src/lib/codemirror.js', './codemirror.js');
+  move('./src/lib/codemirror.css', './codemirror.css');
+  move('./src/LICENSE', './LICENSE');
+});
 
-  readdir('mode').forEach(function (mode) {
-    if (mode === 'rpm') return;
-    move('mode/' + mode + '/' + mode + '.js', 'mode/' + mode + '.js');
+step('move themes and keymaps', function () {
+  move('./src/theme', './theme');
+  move('./src/keymap', './keymap');
+});
+
+step('move modes', function () {
+  move('./src/mode/rpm/spec/spec.js', './mode/rpm/spec.js');
+  move('./src/mode/rpm/spec/spec.css', './mode/rpm/spec.css');
+  move('./src/mode/rpm/changes/changes.js', './mode/rpm/changes.js');
+  rimraf('./src/mode/rpm');
+  readdir('./src/mode').forEach(function (mode) {
+    move('./src/mode/' + mode + '/' + mode + '.js', './mode/' + mode + '.js');
     try {
-      move('mode/' + mode + '/' + mode + '.css', 'mode/' + mode + '.css');
+      move('./src/mode/' + mode + '/' + mode + '.css', './mode/' + mode + '.css');
     } catch (ex) {
       //most don't actually have css
     }
   });
-  move('mode/rpm/spec/spec.js', 'mode/rpm/spec.js');
-  move('mode/rpm/spec/spec.css', 'mode/rpm/spec.css');
-  move('mode/rpm/changes/changes.js', 'mode/rpm/changes.js');
-
-  readdir('keymap').forEach(function (keymap) {
-    move('keymap/' + keymap, 'keymap/' + keymap);
-  });
-
-  move('addon/dialog/dialog.js', 'addon/dialog.js');
-  move('addon/dialog/dialog.css', 'addon/dialog.css');
-  readdir('addon').forEach(function (addon) {
-    if (addon === 'dialog') return;
-    readdir('addon/' + addon).forEach(function (file) {
-      move('addon/' + addon + '/' + file, 'addon/' + addon + '/' + file);
-    });
-  });
-
-  empty();
-  fixup();
-
-  var modes = {};
-
-  var aliases = {};
-
-  walk(function (path, src) {
-    falafel(src, function (node) {
-      if (CMMethod(node) === 'defineMode') {
-        if (node.arguments[0].type === 'Literal' && typeof node.arguments[0].value === 'string') {
-          modes[node.arguments[0].value] = modes[node.arguments[0].value] || [];
-          modes[node.arguments[0].value].push(path);
-        }
-      }
-      if (CMMethod(node) === 'defineMIME') {
-        if (node.arguments[0].type === 'Literal' && typeof node.arguments[0].value === 'string' &&
-            node.arguments[1].type === 'Literal' && typeof node.arguments[1].value === 'string' ) {
-          aliases[node.arguments[0].value] = aliases[node.arguments[0].value] || [];
-          aliases[node.arguments[0].value].push(node.arguments[1].value);
-        } else if (node.arguments[0].type === 'Literal' && typeof node.arguments[0].value === 'string') {
-          modes[node.arguments[0].value] = modes[node.arguments[0].value] || [];
-          modes[node.arguments[0].value].push(path);
-        }
-      }
-    })
-  });
-  walk(function (path, src, update) {
-    var deps = [];
-    function parseArg(arg) {
-      if (arg.type === 'Literal' && typeof arg.value === 'string') {
-        return [arg.value];
-      } else if (arg.type === 'ObjectExpression') {
-        for (var i = 0; i < arg.properties.length; i++) {
-          if (arg.properties[i].key.type === 'Identifier' && arg.properties[i].key.name === 'name' &&
-              arg.properties[i].value.type === 'Literal' && typeof arg.properties[i].value.value === 'string') {
-            return [arg.properties[i].value.value];
-          }
-        }
-      } else if (arg.type === 'ConditionalExpression') {
-        return flatten([parseArg(arg.consequent), parseArg(arg.alternate)]);
-      } else if (arg.type === 'LogicalExpression') {
-        return flatten([parseArg(arg.left), parseArg(arg.right)]);
-      } else {
-        //sometimes we can't work it out
-        //console.dir(arg);
-        return [];
-      }
-    }
-    function flatten(arr) {
-      var buf = [];
-      for (var i = 0; i < arr.length; i++) {
-        if (Array.isArray(arr[i])) {
-          var inner = flatten(arr[i]);
-          for (var i = 0; i < inner.length; i++) {
-            buf.push(inner[i]);
-          };
-        } else {
-          buf.push(arr[i]);
-        }
-      }
-      return buf;
-    }
-    falafel(src, function (node) {
-      if (CMMethod(node) === 'getMode') {
-        var modestrs = parseArg(node.arguments[1]) || [];
-        for (var i = 0; i < modestrs.length; i++) {
-          if (modestrs[i]) {
-            var alases = aliases[modestrs[i]] || [];
-            alases = alases.concat([modestrs[i]]);
-            var mods = [];
-            for (var i = 0; i < alases.length; i++) {
-              mods = mods.concat(modes[alases[i]] || []);
-            }
-            mods = flatten(mods);
-            for (var i = 0; i < mods.length; i++) {
-              if (mods[i] != path && mods[i] != join(__dirname, 'codemirror.js') && !(/css/.test(path) && /less/.test(mods[i]))) {
-                deps.push('./'+ relative(dirname(path), mods[i]).replace(/\\/g, '/'));
-              }
-            }
-          }
-        }
-      }
-    });
-    deps = deps.filter(unique());
-    src = deps.map(function (name) { return 'require(' + JSON.stringify(name) + ');'; }).join('') + src;
-    update(src);
-  });
-
-  var diff = read('./addon/merge/dep/diff_match_patch.js')
-
-  console.dir(modes);
 });
 
-function CMMethod(node) {
-  return (node.type === 'CallExpression' && node.callee.type === 'MemberExpression' && node.callee.computed === false
-         && node.callee.object.type === 'Identifier' && node.callee.object.name === 'CodeMirror'
-         && node.callee.property.type === 'Identifier') ? node.callee.property.name : false;
+step('move addons', function () {
+  //Addons
+  move('./src/addon/dialog/dialog.js', 'addon/dialog.js');
+  move('./src/addon/dialog/dialog.css', 'addon/dialog.css');
+  ['coffeescript', 'css', 'javascript', 'json'].forEach(function (lint) {
+    move('./src/addon/lint/' + lint + '-lint.js', './addon/lint/' + lint + '.js');
+    write('./addon/lint/' + lint + '.js', 'require("./lint.js");\n' + read('./addon/lint/' + lint + '.js'));
+  })
+  move('./src/addon/lint/lint.css', './addon/lint/lint.css');
+  move('./src/addon/lint/lint.js', './addon/lint/lint.js');
+  move('./src/addon/merge/merge.css', './addon/merge.css');
+  move('./src/addon/merge/merge.js', './addon/merge.js');
+  var diff = 'var diff_match_patch = require("diff-match-patch");\n' +
+    ['DIFF_INSERT', 'DIFF_DELETE', 'DIFF_EQUAL'].map(function (name) {
+      return 'var ' + name + ' = diff_match_patch.' + name +  ';';
+    }).join('\n');
+  write('./addon/merge.js', diff + '\n' + read('./addon/merge.js'));
+  readdir('./src/addon').forEach(function (addon) {
+    if (addon === 'dialog' || addon === 'lint' || addon === 'merge') return;
+    move('./src/addon/' + addon, './addon/' + addon);
+  });
+});
+
+step('delete empty source folder', function () {
+  empty();
+})
+
+step('add require("code-mirror")', function () {
+  walk(function (path, src, update) {
+    if (path === join(__dirname, 'codemirror.js')) {
+      update(src.replace(/window\.CodeMirror/g, 'module.exports'));
+    } else {
+      update('var CodeMirror = module.exports = require("code-mirror");\n' + 
+        src.replace(/window\.CodeMirror/g, 'CodeMirror'));
+    }
+  });
+});
+
+var resolver = {
+  'global:coffeelint': 'require("coffeelint")',
+  'global:CSSLint': 'require("csslint")',
+  'global:JSHINT': 'require("jshint").JSHINT',
+  'global:jsonlint': 'require("jsonlint")'
+};
+
+step('find exports and process aliases', function () {
+  walk(function (path, src) {
+    getExports(src).forEach(function (name) {
+      if (resolver['export:' + name]) {
+        console.error('export ' + name + ' is defined in both ' + resolver['export:' + name] + ' and ' + path);
+      }
+      resolver['export:' + name] = path;
+    });
+  });
+  walk(function (path, src) {
+    getAliases(src).forEach(function (alias) {
+      var name = alias[0];
+      if (alias[1] === 'text/x-nginx-conf') alias[1] = 'nginx';
+      var path = resolver['export:' + alias[1]];
+
+      if (!path) {
+        throw new Error(alias[1] + ' could not be resolved.')
+      }
+
+      if (resolver['export:' + name]) {
+        if (name === 'text/css') {
+          return;//use `css.js` instead of `less.js`
+        }
+        if (name === 'text/html' || name === 'text/x-smarty') {
+          if (!/mixed/.test(path)) {
+            throw new Error(name + ' should be a `mixed` mode.');
+          }
+        } else {
+          throw new Error('export ' + name + ' is defined in both ' + resolver['export:' + name] + ' and ' + path);
+        }
+      }
+
+      resolver['export:' + name] = path;
+    });
+  });
+});
+
+step('add local require calls', function () {
+  //add require calls
+  walk(function (path, src, update) {
+    var dir = dirname(path);
+    var load = getDeps(src).map(function (name) {
+      if (!resolver['export:' + name]) {
+        throw new Error('Could not resolve ' + name);
+      }
+      return './' + relative(dir, resolver['export:' + name]).replace(/\\/g, '/');
+    }).map(function (name) {
+      return 'require(' + JSON.stringify(name) + ');';
+    });
+    if (load.length)
+      update(load.join('\n') + '\n' + src);
+  });
+})
+
+step('add global require calls', function () {
+  var output = '';
+  var fail = false;
+  walk(function (path, src, update) {
+    var toAdd = [];
+    var globals = detectGlobals(src).filter(function (global) {
+      if (resolver['global:' + global]) {
+        toAdd.push('var ' + global + ' = ' + resolver['global:' + global]);
+        return false;
+      } else {
+        return true;
+      }
+    })
+    if (toAdd.length) {
+      update(toAdd.join('\n') + '\n' + src);
+    }
+    if (globals.length) {
+      fail = true;
+      output += '\n' + path + '\n';
+      globals.forEach(function (global) {
+        output += '\n   - ' + global;
+      });
+      output += '\n';
+    }
+  });
+  if (fail) throw new Error('Missing some global variables:\n' + output);
+})
+
+var walkers = {
+
+}
+function astw(src, fn) {
+  return astwalker(src)(fn)
 }
 
-function unique() {
+function read(path) {
+  return fs.readFileSync(join(__dirname, path), 'utf8');
+}
+function write(path, src) {
+  return fs.writeFileSync(join(__dirname, path), src);
+}
+function move(src, dest) {
+  mkdirp(dirname(join(__dirname, dest)));
+  fs.renameSync(join(__dirname, src), join(__dirname, dest));
+}
+function readdir(src) {
+  return fs.readdirSync(join(__dirname, src));
+} 
+function detectGlobals(src) {
+  var builtins = ['module', 'require', 'RegExp', 'Math', 'undefined', 'Number', 'String', 'Array', 'isNaN',
+                  'parseInt', 'alert', 'prompt', 'confirm', 'Infinity', 'Error', 'encodeURI', 'decodeURI', 'Date',
+                  'Object', 'NaN', 'clearTimeout', 'setTimeout', 'clearInterval', 'setInterval', 'document',
+                  'navigator', 'postMessage', 'console', 'Function', 'arguments', 'FileReader', 'window',
+                  'exports'];
+  var ast = uglify.parse(src.toString())
+  ast.figure_out_scope()
+  var globals = ast.globals
+    .map(function (node, name) {
+      if (builtins.indexOf(name) != -1) return null
+      return name;
+    })
+    .filter(Boolean)
+  return globals;
+}
+
+function CMMethod(node, name, conditions) {
+  if (node.type === 'CallExpression' && node.callee.type === 'MemberExpression' && node.callee.computed === false
+   && node.callee.object.type === 'Identifier' && node.callee.object.name === 'CodeMirror'
+   && node.callee.property.type === 'Identifier'
+   && node.callee.property.name === name) {
+    for (var i = 0; i < conditions.length; i++) {
+      if (!conditions[i](node.arguments[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  return false;
+}
+function isStringNode(node) {
+  return node.type === 'Literal' && typeof node.value === 'string'
+}
+function not(fn) {
+  return function () {
+    return !fn.apply(this, arguments);
+  }
+}
+function getExports(src) {
+  var exports = [];
+  astw(src, function (node) {
+    if (CMMethod(node, 'defineMode', [isStringNode]) || CMMethod(node, 'defineMIME', [isStringNode, not(isStringNode)])) {
+      exports.push(node.arguments[0].value);
+    }
+  });
+  return unique(exports);
+}
+function getAliases(src) {
+  var aliases = [];
+  astw(src, function (node) {
+    if (CMMethod(node, 'defineMIME', [isStringNode, isStringNode])) {
+      aliases.push([node.arguments[0].value, node.arguments[1].value])
+    }
+  });
+  return aliases;
+}
+function getDeps(src) {
+  var deps = [];
+  function parseArg(arg) {
+    if (arg.type === 'Literal' && typeof arg.value === 'string') {
+      return [arg.value];
+    } else if (arg.type === 'ObjectExpression') {
+      for (var i = 0; i < arg.properties.length; i++) {
+        if (arg.properties[i].key.type === 'Identifier' && arg.properties[i].key.name === 'name' &&
+            arg.properties[i].value.type === 'Literal' && typeof arg.properties[i].value.value === 'string') {
+          return [arg.properties[i].value.value];
+        }
+      }
+    } else if (arg.type === 'ConditionalExpression') {
+      return flatten([parseArg(arg.consequent), parseArg(arg.alternate)]);
+    } else if (arg.type === 'LogicalExpression') {
+      return flatten([parseArg(arg.left), parseArg(arg.right)]);
+    } else {
+      //sometimes we can't work it out
+      //console.dir(arg);
+      return [];
+    }
+  }
+  function flatten(arr) {
+    var buf = [];
+    for (var i = 0; i < arr.length; i++) {
+      if (Array.isArray(arr[i])) {
+        var inner = flatten(arr[i]);
+        for (var i = 0; i < inner.length; i++) {
+          buf.push(inner[i]);
+        };
+      } else {
+        buf.push(arr[i]);
+      }
+    }
+    return buf;
+  }
+  astw(src, function (node) {
+    if (CMMethod(node, 'getMode', [])) {
+      deps = deps.concat(parseArg(node.arguments[1]))
+    }
+  });
+  return unique(deps);
+}
+
+function unique(list) {
   var seen = {};
-  return function (str) {
+  return list.filter(function (str) {
     if (seen['key:' + str]) return false;
     else return seen['key:' + str] = true;
-  }
+  })
 }
 
 function empty(path) {
@@ -215,15 +369,3 @@ function walk(path, fn) {
     }
   }
 }
-function fixup() {
-  walk(function (path, src, update) {
-    if (path === join(__dirname, 'codemirror.js')) {
-      update(src.replace(/window\.CodeMirror/g, 'module.exports'));
-    } else {
-      update('var CodeMirror = module.exports = require("code-mirror");\n' + 
-        src.replace(/window\.CodeMirror/g, 'CodeMirror'));
-    }
-  })
-}
-
-//rpm

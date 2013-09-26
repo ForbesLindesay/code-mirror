@@ -1,4 +1,8 @@
-require("./xml.js");require("./css.js");require("./javascript.js");var CodeMirror = module.exports = require("code-mirror");
+require("./xml.js");
+require("./css.js");
+require("./javascript.js");
+require("./../codemirror.js");
+var CodeMirror = module.exports = require("code-mirror");
 CodeMirror.defineMode("htmlmixed", function(config, parserConfig) {
   var htmlMode = CodeMirror.getMode(config, {name: "xml", htmlMode: true});
   var cssMode = CodeMirror.getMode(config, "css");
