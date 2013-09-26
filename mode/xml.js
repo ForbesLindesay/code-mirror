@@ -77,7 +77,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         tagName = "";
         var c;
         while ((c = stream.eat(/[^\s\u00a0=<>\"\'\/?]/))) tagName += c;
-        if (!tagName) return "tag error";
+        if (!tagName) return "error";
         type = isClose ? "closeTag" : "openTag";
         state.tokenize = inTag;
         return "tag";
@@ -110,9 +110,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
       type = "equals";
       return null;
     } else if (ch == "<") {
-      state.tokenize = inText;
-      var next = state.tokenize(stream, state);
-      return next ? next + " error" : "error";
+      return "error";
     } else if (/[\'\"]/.test(ch)) {
       state.tokenize = inAttribute(ch);
       state.stringStartCol = stream.column();
@@ -301,9 +299,7 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
         }
       }
       state.startOfLine = false;
-      if (setStyle)
-        style = setStyle == "error" ? style + " error" : setStyle;
-      return style;
+      return setStyle || style;
     },
 
     indent: function(state, textAfter, fullLine) {

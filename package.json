@@ -1,6 +1,6 @@
 {
   "name": "code-mirror",
-  "version": "3.18.1",
+  "version": "3.18.0",
   "description": "CodeMirror fork to be more \"browserifyable\"",
   "main": "./codemirror",
   "repository": {

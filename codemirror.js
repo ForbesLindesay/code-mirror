@@ -3522,8 +3522,7 @@ module.exports = (function() {
   keyMap.basic = {
     "Left": "goCharLeft", "Right": "goCharRight", "Up": "goLineUp", "Down": "goLineDown",
     "End": "goLineEnd", "Home": "goLineStartSmart", "PageUp": "goPageUp", "PageDown": "goPageDown",
-    "Delete": "delCharAfter", "Backspace": "delCharBefore", "Shift-Backspace": "delCharBefore",
-    "Tab": "defaultTab", "Shift-Tab": "indentAuto",
+    "Delete": "delCharAfter", "Backspace": "delCharBefore", "Tab": "defaultTab", "Shift-Tab": "indentAuto",
     "Enter": "newlineAndIndent", "Insert": "toggleOverwrite"
   };
   // Note that the save and find-related commands aren't defined by
@@ -5881,7 +5880,7 @@ module.exports = (function() {
 
   // THE END
 
-  CodeMirror.version = "3.18.1";
+  CodeMirror.version = "3.18.0";
 
   return CodeMirror;
 })();
