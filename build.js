@@ -18,6 +18,7 @@ step('cleanup', function () {
   rimraf(__dirname + '/keymap');
   rimraf(__dirname + '/mode');
   rimraf(__dirname + '/src');
+  mkdirp(__dirname + '/src');
   rimraf(__dirname + '/theme');
   rimraf(__dirname + '/codemirror.css');
   rimraf(__dirname + '/codemirror.js');
@@ -26,12 +27,11 @@ step('cleanup', function () {
 
 step('download', function (callback) {
   npm('codemirror', '*').pipe(unpack(__dirname + '/src', callback));
-});
+}, '60 seconds');
 
 step('remove unused files', function () {
   rimraf(__dirname + '/src/doc');
   rimraf(__dirname + '/src/index.html');
-  rimraf(__dirname + '/src/package.json');
   rimraf(__dirname + '/src/.gitattributes');
   rimraf(__dirname + '/src/.gitignore');
   rimraf(__dirname + '/src/.travis.yml');
@@ -46,6 +46,13 @@ step('remove unused files', function () {
   rimraf(__dirname + '/src/addon/merge/dep');
 });
 
+step('get version', function () {
+  var version = JSON.parse(read('./src/package.json')).version;
+  var pkg = JSON.parse(read('./package.json'));
+  pkg.version = version;
+  write('./package.json', JSON.stringify(pkg, null, '  '));
+  rimraf(__dirname + '/src/package.json');
+});
 
 step('move main files', function () {
   move('./src/lib/codemirror.js', './codemirror.js');
