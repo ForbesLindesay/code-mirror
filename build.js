@@ -12,6 +12,7 @@ var mkdirp = require('mkdirp').sync;
 var rimraf = require('rimraf').sync;
 var astwalker = require('astw');
 var uglify = require('uglify-js');
+var css = require('css');
 
 step('cleanup', function () {
   rimraf(__dirname + '/addon');
@@ -207,6 +208,19 @@ step('add global require calls', function () {
   if (fail) throw new Error('Missing some global variables:\n' + output);
 })
 
+step('add JavaScript versions of CSS', function () {
+  var themes = readdir('./theme');
+  if (themes.indexOf('default.css') !== -1) {
+    throw new Error('unexpected theme "default.css"')
+  }
+  var defaultCSS = readCSS('./codemirror.css');
+  write('./theme/default.js', 'require("insert-css")(' + JSON.stringify(defaultCSS) + ');');
+  for (var i = 0; i < themes.length; i++) {
+    write('./theme/' + themes[i].replace(/\.css$/, '.js'),
+          'require("./default.js");\nrequire("insert-css")(' + JSON.stringify(readCSS('./theme/' + themes[i])) + ');');
+  };
+});
+
 var walkers = {
 
 }
@@ -216,6 +230,9 @@ function astw(src, fn) {
 
 function read(path) {
   return fs.readFileSync(join(__dirname, path), 'utf8');
+}
+function readCSS(path) {
+  return css.stringify(css.parse(read(path)), { compress: true });
 }
 function write(path, src) {
   return fs.writeFileSync(join(__dirname, path), src);

@@ -18,13 +18,15 @@
     "testit": "~1.1.0",
     "astw": "0.0.0",
     "npm-fetch": "0.0.6",
-    "tar-pack": "~2.0.0"
+    "tar-pack": "~2.0.0",
+    "css": "~1.4.2"
   },
   "dependencies": {
     "diff-match-patch": "~1.0.0",
     "csslint": "~0.9.10",
     "jshint": "~2.1.11",
     "jsonlint": "~1.6.0",
-    "coffeelint": "~0.5.7"
+    "coffeelint": "~0.5.7",
+    "insert-css": "0.0.0"
   }
 }
