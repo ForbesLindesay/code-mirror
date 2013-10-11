@@ -46,6 +46,20 @@ For the vast majority of cases, that will also automatically require any depende
 
 I'm trying to make requiring addons equally simple.  If you notice one that doesn't work, please open an issue for it.  Tern is intentionally ommitted.  I think someone should probably add it at some point, but it isn't simple to add.
 
+## themes
+
+The themes are all availble either as raw CSS files, or as a JavaScript file that will automatically insert the CSS into the document when required.  The JavaScript versions are also properly minified, and include the base CSS as well as the theme.
+
+You can load a theme by calling `require('code-mirror/theme/theme-name')`.  This will return `theme-name`, so you can use it in a call to code mirror:
+
+```js
+var cm = new CodeMirror(element, {
+  theme: require('code-mirror/theme/monokai')
+});
+```
+
+You can also get a list of the themes that have been loaded in this way by calling `require('code-mirror/theme').available()`
+
 ## Contributing
 
 If you notice this repository is out of date, open an issue and I will update it as soon as I'm in front of a computer again.
