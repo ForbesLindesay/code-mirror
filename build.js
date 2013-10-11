@@ -209,16 +209,39 @@ step('add global require calls', function () {
 })
 
 step('add JavaScript versions of CSS', function () {
-  var themes = readdir('./theme');
+  var themes = readdir('./theme').filter(function (name) {
+    return /\.css$/.test(name);
+  });
   if (themes.indexOf('default.css') !== -1) {
     throw new Error('unexpected theme "default.css"')
   }
+  var themeNames = themes.map(function (theme) {
+    return theme.replace(/\.css$/, '');
+  })
   var defaultCSS = readCSS('./codemirror.css');
   write('./theme/default.js', 'require("insert-css")(' + JSON.stringify(defaultCSS) + ');');
   for (var i = 0; i < themes.length; i++) {
-    write('./theme/' + themes[i].replace(/\.css$/, '.js'),
-          'require("./default.js");\nrequire("insert-css")(' + JSON.stringify(readCSS('./theme/' + themes[i])) + ');');
+    write('./theme/' + themeNames[i] + '.js', [
+      'require("./default.js");',
+      'require("insert-css")(' + JSON.stringify(readCSS('./theme/' + themes[i])) + ');',
+      'module.exports = require("./index.js").register(' + JSON.stringify(themeNames[i]) + ');'
+    ].join('\n'));
   };
+  write('./theme/index.js', [
+    '"use strict";',
+    'var themes = [];',
+    'var all = ' + JSON.stringify(themeNames) + ';',
+    'exports.available = function (name) {',
+    '  return name ? themes.indexOf(name) != -1 : themes;',
+    '};',
+    'exports.all = function () {',
+    '  return all;',
+    '};',
+    'exports.register = function (name) {',
+    '  themes.push(name);',
+    '  return name',
+    '};'
+  ].join('\n'));
 });
 
 var walkers = {
