@@ -219,7 +219,8 @@ step('add JavaScript versions of CSS', function () {
     return theme.replace(/\.css$/, '');
   })
   var defaultCSS = readCSS('./codemirror.css');
-  write('./theme/default.js', 'require("insert-css")(' + JSON.stringify(defaultCSS) + ');');
+  write('./theme/default.js', 'require("insert-css")(' + JSON.stringify(defaultCSS) + ');',
+      'module.exports = require("./index.js").register("default");');
   for (var i = 0; i < themes.length; i++) {
     write('./theme/' + themeNames[i] + '.js', [
       'require("./default.js");',
