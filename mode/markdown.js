@@ -1,4 +1,5 @@
 require("./xml.js");
+require("./../codemirror.js");
 var CodeMirror = module.exports = require("code-mirror");
 CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
