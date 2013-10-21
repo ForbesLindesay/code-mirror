@@ -353,8 +353,8 @@ function getDeps(src) {
     for (var i = 0; i < arr.length; i++) {
       if (Array.isArray(arr[i])) {
         var inner = flatten(arr[i]);
-        for (var i = 0; i < inner.length; i++) {
-          buf.push(inner[i]);
+        for (var x = 0; x < inner.length; x++) {
+          buf.push(inner[x]);
         };
       } else {
         buf.push(arr[i]);
@@ -365,6 +365,9 @@ function getDeps(src) {
   astw(src, function (node) {
     if (CMMethod(node, 'getMode', [])) {
       deps = deps.concat(parseArg(node.arguments[1]))
+    }
+    if (CMMethod(node, 'defineMode', []) && node.arguments.length > 2) {
+      deps = deps.concat(flatten(node.arguments.slice(2).map(parseArg)))
     }
   });
   return unique(deps);
