@@ -89,14 +89,14 @@ var CodeMirror = module.exports = require("code-mirror");
   }
 
   function onChange(cm) {
-    var state = cm.state.foldGutter;
+    var state = cm.state.foldGutter, opts = cm.state.foldGutter.options;
     state.from = state.to = 0;
     clearTimeout(state.changeUpdate);
-    state.changeUpdate = setTimeout(function() { updateInViewport(cm); }, 600);
+    state.changeUpdate = setTimeout(function() { updateInViewport(cm); }, opts.foldOnChangeTimeSpan || 600);
   }
 
   function onViewportChange(cm) {
-    var state = cm.state.foldGutter;
+    var state = cm.state.foldGutter, opts = cm.state.foldGutter.options;
     clearTimeout(state.changeUpdate);
     state.changeUpdate = setTimeout(function() {
       var vp = cm.getViewport();
@@ -114,7 +114,7 @@ var CodeMirror = module.exports = require("code-mirror");
           }
         });
       }
-    }, 400);
+    }, opts.updateViewportTimeSpan || 400);
   }
 
   function onFold(cm, from) {
