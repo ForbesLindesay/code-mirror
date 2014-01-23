@@ -6,6 +6,8 @@ var CodeMirror = module.exports = require("code-mirror");
       unorderedBullets = '*+-';
 
   CodeMirror.commands.newlineAndIndentContinueMarkdownList = function(cm) {
+    if (cm.getOption("disableInput")) return CodeMirror.Pass;
+
     var pos = cm.getCursor(),
         inList = cm.getStateAfter(pos.line).list !== false,
         match;

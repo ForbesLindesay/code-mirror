@@ -41,8 +41,10 @@ CodeMirror.defineMode('smalltalk', function(config) {
         stream.next();
         token = nextSymbol(stream, new Context(nextSymbol, context));
       } else {
-        stream.eatWhile(/[^ .\[\]()]/);
-        token.name = 'string-2';
+        if (stream.eatWhile(/[^ .{}\[\]()]/))
+          token.name = 'string-2';
+        else
+          token.name = 'meta';
       }
 
     } else if (aChar === '$') {

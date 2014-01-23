@@ -4,8 +4,7 @@ var CodeMirror = module.exports = require("code-mirror");
 
   function doFold(cm, pos, options, force) {
     var finder = options && (options.call ? options : options.rangeFinder);
-    if (!finder) finder = cm.getHelper(pos, "fold");
-    if (!finder) return;
+    if (!finder) finder = CodeMirror.fold.auto;
     if (typeof pos == "number") pos = CodeMirror.Pos(pos, 0);
     var minSize = options && options.minFoldSize || 0;
 
@@ -64,6 +63,10 @@ var CodeMirror = module.exports = require("code-mirror");
     doFold(this, pos, options, force);
   });
 
+  CodeMirror.commands.fold = function(cm) {
+    cm.foldCode(cm.getCursor());
+  };
+
   CodeMirror.registerHelper("fold", "combine", function() {
     var funcs = Array.prototype.slice.call(arguments, 0);
     return function(cm, start) {
@@ -72,5 +75,13 @@ var CodeMirror = module.exports = require("code-mirror");
         if (found) return found;
       }
     };
+  });
+
+  CodeMirror.registerHelper("fold", "auto", function(cm, start) {
+    var helpers = cm.getHelpers(start, "fold");
+    for (var i = 0; i < helpers.length; i++) {
+      var cur = helpers[i](cm, start);
+      if (cur) return cur;
+    }
   });
 })();

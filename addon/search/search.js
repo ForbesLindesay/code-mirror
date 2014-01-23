@@ -8,7 +8,15 @@ var CodeMirror = module.exports = require("code-mirror");
 // Ctrl-G.
 
 (function() {
-  function searchOverlay(query) {
+  function searchOverlay(query, caseInsensitive) {
+    var startChar;
+    if (typeof query == "string") {
+      startChar = query.charAt(0);
+      query = new RegExp("^" + query.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"),
+                         caseInsensitive ? "i" : "");
+    } else {
+      query = new RegExp("^(?:" + query.source + ")", query.ignoreCase ? "i" : "");
+    }
     if (typeof query == "string") return {token: function(stream) {
       if (stream.match(query)) return "searching";
       stream.next();
@@ -18,6 +26,8 @@ var CodeMirror = module.exports = require("code-mirror");
       if (stream.match(query)) return "searching";
       while (!stream.eol()) {
         stream.next();
+        if (startChar)
+          stream.skipTo(startChar) || stream.skipToEnd();
         if (stream.match(query, false)) break;
       }
     }};
@@ -30,13 +40,16 @@ var CodeMirror = module.exports = require("code-mirror");
   function getSearchState(cm) {
     return cm.state.search || (cm.state.search = new SearchState());
   }
+  function queryCaseInsensitive(query) {
+    return typeof query == "string" && query == query.toLowerCase();
+  }
   function getSearchCursor(cm, query, pos) {
     // Heuristic: if the query string is all lowercase, do a case insensitive search.
-    return cm.getSearchCursor(query, pos, typeof query == "string" && query == query.toLowerCase());
+    return cm.getSearchCursor(query, pos, queryCaseInsensitive(query));
   }
-  function dialog(cm, text, shortText, f) {
-    if (cm.openDialog) cm.openDialog(text, f);
-    else f(prompt(shortText, ""));
+  function dialog(cm, text, shortText, deflt, f) {
+    if (cm.openDialog) cm.openDialog(text, f, {value: deflt});
+    else f(prompt(shortText, deflt));
   }
   function confirmDialog(cm, text, shortText, fs) {
     if (cm.openConfirm) cm.openConfirm(text, fs);
@@ -51,11 +64,11 @@ var CodeMirror = module.exports = require("code-mirror");
   function doSearch(cm, rev) {
     var state = getSearchState(cm);
     if (state.query) return findNext(cm, rev);
-    dialog(cm, queryDialog, "Search for:", function(query) {
+    dialog(cm, queryDialog, "Search for:", cm.getSelection(), function(query) {
       cm.operation(function() {
         if (!query || state.query) return;
         state.query = parseQuery(query);
-        cm.removeOverlay(state.overlay);
+        cm.removeOverlay(state.overlay, queryCaseInsensitive(state.query));
         state.overlay = searchOverlay(state.query);
         cm.addOverlay(state.overlay);
         state.posFrom = state.posTo = cm.getCursor();
@@ -86,10 +99,10 @@ var CodeMirror = module.exports = require("code-mirror");
   var replacementQueryDialog = 'With: <input type="text" style="width: 10em"/>';
   var doReplaceConfirm = "Replace? <button>Yes</button> <button>No</button> <button>Stop</button>";
   function replace(cm, all) {
-    dialog(cm, replaceQueryDialog, "Replace:", function(query) {
+    dialog(cm, replaceQueryDialog, "Replace:", cm.getSelection(), function(query) {
       if (!query) return;
       query = parseQuery(query);
-      dialog(cm, replacementQueryDialog, "Replace with:", function(text) {
+      dialog(cm, replacementQueryDialog, "Replace with:", "", function(text) {
         if (all) {
           cm.operation(function() {
             for (var cursor = getSearchCursor(cm, query); cursor.findNext();) {

@@ -1,4 +1,4 @@
-require("./htmlmixed.js");
+require("./xml.js");
 require("./htmlmixed.js");
 require("./clike.js");
 var CodeMirror = module.exports = require("code-mirror");
@@ -60,15 +60,15 @@ var CodeMirror = module.exports = require("code-mirror");
 
     function dispatch(stream, state) {
       var isPHP = state.curMode == phpMode;
-      if (stream.sol() && state.pending != '"') state.pending = null;
+      if (stream.sol() && state.pending && state.pending != '"' && state.pending != "'") state.pending = null;
       if (!isPHP) {
         if (stream.match(/^<\?\w*/)) {
           state.curMode = phpMode;
           state.curState = state.php;
           return "meta";
         }
-        if (state.pending == '"') {
-          while (!stream.eol() && stream.next() != '"') {}
+        if (state.pending == '"' || state.pending == "'") {
+          while (!stream.eol() && stream.next() != state.pending) {}
           var style = "string";
         } else if (state.pending && stream.pos < state.pending.end) {
           stream.pos = state.pending.end;
@@ -76,10 +76,10 @@ var CodeMirror = module.exports = require("code-mirror");
         } else {
           var style = htmlMode.token(stream, state.curState);
         }
-        state.pending = null;
-        var cur = stream.current(), openPHP = cur.search(/<\?/);
+        if (state.pending) state.pending = null;
+        var cur = stream.current(), openPHP = cur.search(/<\?/), m;
         if (openPHP != -1) {
-          if (style == "string" && /\"$/.test(cur) && !/\?>/.test(cur)) state.pending = '"';
+          if (style == "string" && (m = cur.match(/[\'\"]$/)) && !/\?>/.test(cur)) state.pending = m[0];
           else state.pending = {end: stream.pos, style: style};
           stream.backUp(cur.length - openPHP);
         }
@@ -121,7 +121,6 @@ var CodeMirror = module.exports = require("code-mirror");
         return state.curMode.indent(state.curState, textAfter);
       },
 
-      electricChars: "/{}:",
       blockCommentStart: "/*",
       blockCommentEnd: "*/",
       lineComment: "//",

@@ -144,10 +144,6 @@ var CodeMirror = module.exports = require("code-mirror");
           style = null;
         }
         return style;
-      },
-
-      indent: function(state) {
-        return state.indented;
       }
     };
   }, "htmlmixed", "ruby");
