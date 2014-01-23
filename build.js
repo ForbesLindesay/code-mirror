@@ -126,38 +126,14 @@ var resolver = {
   'global:jsonlint': 'require("jsonlint")'
 };
 
-step('find exports and process aliases', function () {
+step('find exports', function () {
   walk(function (path, src) {
+    if (/addon/.test(path)) return;
     getExports(src).forEach(function (name) {
       if (resolver['export:' + name]) {
-        console.error('export ' + name + ' is defined in both ' + resolver['export:' + name] + ' and ' + path);
+        console.error('export ' + name + ' is defined in both '
+                      + resolver['export:' + name] + ' and ' + path);
       }
-      resolver['export:' + name] = path;
-    });
-  });
-  walk(function (path, src) {
-    getAliases(src).forEach(function (alias) {
-      var name = alias[0];
-      if (alias[1] === 'text/x-nginx-conf') alias[1] = 'nginx';
-      var path = resolver['export:' + alias[1]];
-
-      if (!path) {
-        throw new Error(alias[1] + ' could not be resolved.')
-      }
-
-      if (resolver['export:' + name]) {
-        if (name === 'text/css') {
-          return;//use `css.js` instead of `less.js`
-        }
-        if (name === 'text/html' || name === 'text/x-smarty') {
-          if (!/mixed/.test(path)) {
-            throw new Error(name + ' should be a `mixed` mode.');
-          }
-        } else {
-          throw new Error('export ' + name + ' is defined in both ' + resolver['export:' + name] + ' and ' + path);
-        }
-      }
-
       resolver['export:' + name] = path;
     });
   });
@@ -167,9 +143,11 @@ step('add local require calls', function () {
   //add require calls
   walk(function (path, src, update) {
     var dir = dirname(path);
-    var load = getDeps(src).map(function (name) {
+    var load = getDeps(src).filter(function (name) {
+      return name !== 'text/plain';
+    }).map(function (name) {
       if (!resolver['export:' + name]) {
-        throw new Error('Could not resolve ' + name);
+        throw new Error('Could not resolve ' + name + ' from ' + path);
       }
       return './' + relative(dir, resolver['export:' + name]).replace(/\\/g, '/');
     }).map(function (name) {
@@ -184,6 +162,10 @@ step('add global require calls', function () {
   var output = '';
   var fail = false;
   walk(function (path, src, update) {
+    if (/runmode\.node\.js$/.test(path)) {
+      console.warn('ignoring runmode.node.js for globl require calls');
+      return;
+    }
     var toAdd = [];
     var globals = detectGlobals(src).filter(function (global) {
       if (resolver['global:' + global]) {
