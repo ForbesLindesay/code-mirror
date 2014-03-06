@@ -5,11 +5,13 @@ var CodeMirror = module.exports = require("code-mirror");
   CodeMirror.defineOption("scrollPastEnd", false, function(cm, val, old) {
     if (old && old != CodeMirror.Init) {
       cm.off("change", onChange);
+      cm.off("refresh", updateBottomMargin);
       cm.display.lineSpace.parentNode.style.paddingBottom = "";
       cm.state.scrollPastEndPadding = null;
     }
     if (val) {
       cm.on("change", onChange);
+      cm.on("refresh", updateBottomMargin);
       updateBottomMargin(cm);
     }
   });

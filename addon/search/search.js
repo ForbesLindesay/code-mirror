@@ -57,7 +57,13 @@ var CodeMirror = module.exports = require("code-mirror");
   }
   function parseQuery(query) {
     var isRE = query.match(/^\/(.*)\/([a-z]*)$/);
-    return isRE ? new RegExp(isRE[1], isRE[2].indexOf("i") == -1 ? "" : "i") : query;
+    if (isRE) {
+      query = new RegExp(isRE[1], isRE[2].indexOf("i") == -1 ? "" : "i");
+      if (query.test("")) query = /x^/;
+    } else if (query == "") {
+      query = /x^/;
+    }
+    return query;
   }
   var queryDialog =
     'Search: <input type="text" style="width: 10em"/> <span style="color: #888">(Use /re/ syntax for regexp search)</span>';
@@ -108,7 +114,7 @@ var CodeMirror = module.exports = require("code-mirror");
             for (var cursor = getSearchCursor(cm, query); cursor.findNext();) {
               if (typeof query != "string") {
                 var match = cm.getRange(cursor.from(), cursor.to()).match(query);
-                cursor.replace(text.replace(/\$(\d)/, function(_, i) {return match[i];}));
+                cursor.replace(text.replace(/\$(\d)/g, function(_, i) {return match[i];}));
               } else cursor.replace(text);
             }
           });
@@ -129,7 +135,7 @@ var CodeMirror = module.exports = require("code-mirror");
           };
           var doReplace = function(match) {
             cursor.replace(typeof query == "string" ? text :
-                           text.replace(/\$(\d)/, function(_, i) {return match[i];}));
+                           text.replace(/\$(\d)/g, function(_, i) {return match[i];}));
             advance();
           };
           advance();

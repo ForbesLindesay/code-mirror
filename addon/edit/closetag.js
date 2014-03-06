@@ -83,6 +83,7 @@ var CodeMirror = module.exports = require("code-mirror");
 
     var tagName = state.context && state.context.tagName;
     if (tagName) cm.replaceSelection("/" + tagName + ">", "end");
+    else return CodeMirror.Pass;
   }
 
   function indexOf(collection, elt) {

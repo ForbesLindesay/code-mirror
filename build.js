@@ -123,7 +123,8 @@ var resolver = {
   'global:coffeelint': 'require("coffeelint")',
   'global:CSSLint': 'require("csslint")',
   'global:JSHINT': 'require("jshint").JSHINT',
-  'global:jsonlint': 'require("jsonlint")'
+  'global:jsonlint': 'require("jsonlint")',
+  'global:jsyaml': 'require("js-yaml")'
 };
 
 step('find exports', function () {
@@ -255,7 +256,7 @@ function detectGlobals(src) {
                   'parseInt', 'alert', 'prompt', 'confirm', 'Infinity', 'Error', 'encodeURI', 'decodeURI', 'Date',
                   'Object', 'NaN', 'clearTimeout', 'setTimeout', 'clearInterval', 'setInterval', 'document',
                   'navigator', 'postMessage', 'console', 'Function', 'arguments', 'FileReader', 'window',
-                  'exports'];
+                  'exports', 'parseFloat'];
   var ast = uglify.parse(src.toString())
   ast.figure_out_scope()
   var globals = ast.globals

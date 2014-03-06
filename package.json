@@ -1,6 +1,6 @@
 {
   "name": "code-mirror",
-  "version": "3.21.0",
+  "version": "3.22.0",
   "description": "CodeMirror fork to be more \"browserifyable\"",
   "main": "./codemirror",
   "repository": {
@@ -27,6 +27,7 @@
     "jshint": "~2.1.11",
     "jsonlint": "~1.6.0",
     "coffeelint": "~0.5.7",
-    "insert-css": "0.0.0"
+    "insert-css": "0.0.0",
+    "js-yaml": "~3.0.2"
   }
 }

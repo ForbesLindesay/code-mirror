@@ -63,6 +63,12 @@ var CodeMirror = module.exports = require("code-mirror");
     doFold(this, pos, options, force);
   });
 
+  CodeMirror.defineExtension("isFolded", function(pos) {
+    var marks = this.findMarksAt(pos);
+    for (var i = 0; i < marks.length; ++i)
+      if (marks[i].__isFold) return true;
+  });
+
   CodeMirror.commands.fold = function(cm) {
     cm.foldCode(cm.getCursor());
   };

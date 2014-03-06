@@ -40,6 +40,7 @@ var CodeMirror = module.exports = require("code-mirror");
       CodeMirror.on(inp, "keydown", function(e) {
         if (options && options.onKeyDown && options.onKeyDown(e, inp.value, close)) { return; }
         if (e.keyCode == 13 || e.keyCode == 27) {
+          inp.blur();
           CodeMirror.e_stop(e);
           close();
           me.focus();
