@@ -32,7 +32,7 @@ $ npm install code-mirror
 var CodeMirror = require('code-mirror');
 ```
 
-All other scripts can just be require'd in and will all use `requrie('code-mirror')` themselves instead of looking for a global `CodeMirror`.
+All other scripts can just be require'd in and will all use `require('code-mirror')` themselves instead of looking for a global `CodeMirror`.
 
 ## Loading Modes
 
